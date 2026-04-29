@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ARGENTIX</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: radial-gradient(circle at top, #1e3a5f, #020617 60%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #0f172a;
+    }
+
+    .container {
+      width: 900px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: rgba(255,255,255,0.96);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+    }
+
+    .left {
+      background: linear-gradient(160deg, #020617, #0f766e);
+      color: white;
+      padding: 45px;
+    }
+
+    .logo {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .tagline {
+      margin-top: 15px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .trust {
+      margin-top: 35px;
+      font-size: 14px;
+      line-height: 2;
+      color: #e2e8f0;
+    }
+
+    .right {
+      padding: 45px;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+    }
+
+    .sub {
+      color: #64748b;
+      margin-bottom: 25px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #0f766e;
+      color: white;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background: #115e59;
+    }
+
+    .result {
+      display: none;
+      margin-top: 22px;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 15px;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .blocked {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="left">
+    <div class="logo">ARGENTIX</div>
+    <p class="tagline">
+      Secure cross-border transaction intelligence system.
+      Designed to evaluate risk before execution.
+    </p>
+
+    <div class="trust">
+      Pre-transaction risk evaluation<br>
+      Secure payment behaviour modelling<br>
+      Java-based transaction engine<br>
+      AI-style anomaly detection layer
+    </div>
+  </div>
+
+  <div class="right">
+    <h2>Send Payment</h2>
+    <p class="sub">Transaction will be analysed before processing.</p>
+
+    <input id="source" placeholder="Source Account ID e.g. A001">
+    <input id="destination" placeholder="Destination Account ID e.g. A002">
+    <input id="amount" type="number" placeholder="Amount">
+
+    <select id="sourceCurrency">
+      <option value="INR">INR</option>
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+    </select>
+
+    <select id="targetCurrency">
+      <option value="USD">USD</option>
+      <option value="INR">INR</option>
+      <option value="EUR">EUR</option>
+    </select>
+
+    <button onclick="sendPayment()">Analyse & Process</button>
+
+    <div id="resultBox" class="result">
+      <h3 id="status"></h3>
+      <p id="creditedAmount"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+function sendPayment() {
+  const data = {
+    sourceAccountId: document.getElementById("source").value,
+    destinationAccountId: document.getElementById("destination").value,
+    amount: Number(document.getElementById("amount").value),
+    sourceCurrency: document.getElementById("sourceCurrency").value,
+    targetCurrency: document.getElementById("targetCurrency").value,
+    transactionType: "CROSS_BORDER"
+  };
+
+  fetch("http://localhost:8080/api/transaction", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(response => {
+    const box = document.getElementById("resultBox");
+    const status = document.getElementById("status");
+    const credited = document.getElementById("creditedAmount");
+
+    box.style.display = "block";
+
+    if (response.status === "BLOCKED") {
+      box.className = "result blocked";
+      status.innerHTML = "Transaction Blocked";
+    } else {
+      box.className = "result success";
+      status.innerHTML = "Transaction Successful";
+    }
+
+    credited.innerHTML = "Credited Amount: " + response.creditedAmount;
+  })
+  .catch(error => {
+    alert("Java backend is not running or API is not connected.");
+    console.error(error);
+  });
+}
+</script>
+
+</body>
+</html>
